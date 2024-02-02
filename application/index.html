@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>iFrame Rendering</title>
+</head>
+<script src="https://unpkg.com/penpal@5.3.0/dist/penpal.min.js"></script>
+
+<body>
+  <button onclick="renderDocument()">
+    Render OA document
+  </button>
+  <div id="template-selector"></div>
+  <iframe id="iframe" src="http://localhost:3000" style="width: 100%; border: 0px; overflow: hidden;"></iframe>
+</body>
+
+<script type="text/javascript">
+  const iframe = document.getElementById("iframe");
+  const templateSelector = document.getElementById("template-selector");
+  let frame;
+
+  const oaDocument = {
+    $template: {
+      type: v2.TemplateType.EmbeddedRenderer,
+      name: "INVOICE",
+      url: "https://generictemplates.fdpconnect.com",
+    },
+    issuers: [
+      {
+        name: "abc",
+        documentStore: "0x1245e5B64D785b25057f7438F715f4aA5D965733",
+        identityProof: {
+          type: v2.IdentityProofType.DNSTxt,
+          location: "example.tradetrust.io",
+        },
+      },
+    ],
+    id: "2034",
+    date: "2018-02-21",
+    customerId: "564",
+    terms: "Due Upon Receipt",
+    billFrom: {
+      name: "ABC Company",
+      streetAddress: "Level 1, Industry Offices",
+      city: "Singapore",
+      postalCode: "123456",
+      phoneNumber: "60305029",
+    },
+    billTo: {
+      company: {
+        name: "DEF Company",
+        streetAddress: "Level 2, Industry Offices",
+        city: "Singapore",
+        postalCode: "612345",
+        phoneNumber: "61204028",
+      },
+      name: "James Lee",
+      email: "def@company.com",
+    },
+    billableItems: [
+      {
+        description: "Service Fee",
+        quantity: "1",
+        unitPrice: "200",
+        amount: "200",
+      },
+      {
+        description: "Labor: 5 hours at $75/hr",
+        quantity: "5",
+        unitPrice: "75",
+        amount: "375",
+      },
+      {
+        description: "New client discount",
+        quantity: "1",
+        unitPrice: "50",
+        amount: "50",
+      },
+    ],
+    subtotal: "625",
+    tax: "0",
+    taxTotal: "0",
+    total: "625",
+  };
+
+  const dispatch = (action) => {
+    const { type, payload } = action;
+    if (type === "UPDATE_HEIGHT") {
+      iframe.height = payload;
+    }
+  }
+
+  const connection = Penpal.connectToChild({
+    iframe,
+    methods: {
+      dispatch
+    }
+  });
+
+  const renderDocumentAction = {
+    type: "RENDER_DOCUMENT",
+    payload: {
+      document: oaDocument,
+    },
+  };
+
+  const getTemplatesAction = {
+    type: "GET_TEMPLATES",
+    payload: oaDocument
+  };
+
+  const renderDocument = () => {
+    if (!frame) console.warn("frame connection not established.")
+    frame.dispatch(renderDocumentAction);
+  };
+
+  const renderTemplateSelector = () => {
+    if (!frame) console.warn("frame connection not established.")
+    frame.dispatch(getTemplatesAction).then((templates) => {
+      templates.forEach((tab, index) => {
+        const btn = document.createElement("button");
+        btn.innerHTML = tab.label;
+        btn.id = `selector-${tab.id}`;
+        btn.onclick = () => {
+          frame.dispatch({
+            type: "SELECT_TEMPLATE",
+            payload: tab.id
+          });
+        };
+        templateSelector.appendChild(btn);
+      });
+    });
+  }
+
+  connection.promise.then(child => {
+    frame = child;
+    renderTemplateSelector();
+  });
+</script>
+
+</html>
