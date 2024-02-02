@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom";
-import { InvoiceDocument } from "../src/templates/samples";
+import { InvoiceDocument } from "../src/templates/invoice_template";
 import React from "react";
 import { App } from "./app";
 

@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from "react";
 import { RedactableValue, TemplateProps } from "@govtechsg/decentralized-renderer-react-components";
 import { css } from "@emotion/core";
-import { InvoiceDocument, InvoiceDocumentSchema } from "../samples/customTemplateSample";
+import { InvoiceDocument, InvoiceDocumentSchema } from "../invoice_template/customTemplate";
 import { OpenAttestationDocument, utils } from "@tradetrust-tt/tradetrust";
 import styled from "@emotion/styled";
 import { format } from "date-fns";
